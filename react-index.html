@@ -1,0 +1,150 @@
+<html>
+	<head>
+		<title>Ratracer</title>
+		<script type="text/javascript" src="./react/react.development.js"></script>
+		<script type="text/javascript" src="./react/react-dom.development.js"></script>
+		<script type="text/javascript" src="./vecMath.js"></script>
+		<script type="text/javascript" src="./raytraceObjects.js"></script>
+		<script type="text/javascript" src="./environment.js"></script>
+		<script type="text/javascript" src="./renderer.js"></script>
+	</head>
+	<body>
+		<canvas id="mainArea" width="512" height="512" style="background-color: black;"></canvas>
+		<div id="controls">
+		</div>
+	</body>
+</html>
+
+<script type="text/javascript">
+	window.requestAnimFrame = (function () {
+			    return  window.requestAnimationFrame ||
+			            window.webkitRequestAnimationFrame ||
+			            window.mozRequestAnimationFrame ||
+			            function (callback) {
+			                window.setTimeout(callback, 1000 / 60); // 30 fps otherwise
+			            };
+			})();
+
+	function generateEnvironment(){
+		var environment = new Environment();
+
+		/* Temp code to setup materials */
+		var flatNormal = new Texture("./textures/flatNormal.png");
+		var whiteTexture = new Texture("./textures/white.png");
+		var dTexture = new Texture("./textures/TexturesCom_MarbleBase0019_1_seamless_S.png");
+		var nTexture = new Texture("./textures/TexturesCom_Marble_FanPattern_512_normal.png");
+		var mat = new Material(vec3(1.0, 0.1, 0.1), vec3(0.8, 0.8, 0.8));
+		mat.roughness = 0.15;
+		mat.reflectionAmount = 0.3;
+		mat.diffuseTexture = dTexture;
+		mat.normalTexture = nTexture;
+		mat.roughnessTexture = whiteTexture;
+		mat.id = 255;
+		environment.materials.push(mat);
+
+		dTexture = new Texture("./textures/TexturesCom_Marble_FanPattern_512_albedo.png");
+		nTexture = flatNormal;
+		mat = new Material(vec3(0.2, 0.8, 0.2), vec3(1.0, 0.0, 1.0));
+		mat.roughness = 0.0;
+		mat.reflectionAmount = 0.9;
+		mat.diffuseTexture = dTexture;
+		mat.normalTexture = nTexture;
+		mat.roughnessTexture = whiteTexture;
+		mat.id = 128;
+		environment.materials.push(mat);
+
+		dTexture = new Texture("./textures/TexturesCom_Tiles_2x2_1024_albedo.png");
+		nTexture = new Texture("./textures/TexturesCom_Tiles_2x2_1024_normal.png");
+		mat = new Material(vec3(0.3, 0.3, 0.3), vec3(1.0, 1.0, 1.0));
+		mat.roughness = 0.1;
+		mat.reflectionAmount = 0.2;
+		mat.diffuseTexture = dTexture;
+		mat.normalTexture = nTexture;
+		mat.id = 0;
+		mat.roughnessTexture = new Texture("./textures/TexturesCom_Tiles_2x2_1024_roughness.png");
+		environment.materials.push(mat);
+
+
+		/* TODO: Point lights with radius values */
+		environment.addLight(new DirectionalLight(
+			0.2, 0.2, 0.1, 
+			0.57735, -0.57735, 0.57735,
+			/*-0.331295, -0.883452, 0.331295,*/ //TODO: Create a Vector object then normalize
+			8.0, true, 1.0));
+
+		environment.addLight(new DirectionalLight(
+			0.1, 0.1, 0.3, 
+			0, -0.447214, 0.894427, //TODO: Create a Vector object
+			10.0, true, 1.0));
+
+		environment.addLight(new DirectionalLight(
+			0.7, 0.7, 0.7, 
+			0, -1.0, 0, //TODO: Create a Vector object
+			3.0, true, 1.0));
+
+		environment.addObject(new Cube(vec3(0.0, 0.0, 0.0), 3.0, 255));
+		environment.addObject(new Sphere(vec3(20.0, 20.0, 20.0), 20.0, 128));
+		environment.addObject(new Plane(vec3(0.0, 1.0, 0.0), 5.0, 0));
+
+		return environment;
+	}
+
+	class Game {
+		constructor(canvas){
+			this.environment = environment;
+			this.renderer = new Renderer(canvas, canvas.width, canvas.height); 
+			this.lastTime = 0;
+			this.mode = 0;
+			this.sunIndex = 0;
+		}
+
+		handleKeyDown(keyCode){
+
+		}
+
+		handleKeyUp(keyCode){
+
+		}
+
+		update(deltaTIme) {
+
+		}
+	}
+
+	class LightControl extends React.Component {
+		constructor(props){
+			this.state = {
+				color: props['light']
+			}
+		}
+
+		render(){
+			return();
+		}
+	}
+
+	class Controls extends React.Component {
+		constructor(props){
+			super(props);
+
+			this.state = {
+				environment: generateEnvironment,
+
+			}
+		}
+
+		render(){
+			return(React.createElement(GameRenderer, {width: 512, height: 512}));
+		}
+	}
+
+	ReactDOM.render(
+		React.createElement(Controls), document.getElementById('controls')
+	);
+
+	function update(time){
+		requestAnimationFrame(update);
+	}
+
+	update(0);
+</script>
